@@ -186,3 +186,63 @@ export const log_console = (user: IUserModelData, request: Request) => {
       "\n*********************************"
   );
 };
+
+// Generic authenticate middleware for documentation
+export const authenticateToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authHeader =
+    req.headers["authorization"] || req.headers["Authorization"];
+
+  let token: string | undefined;
+
+  if (authHeader) {
+    if (Array.isArray(authHeader)) {
+      token = authHeader[0].split(" ")[1];
+    } else {
+      token = authHeader.split(" ")[1];
+    }
+  }
+
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  jwt.verify(token, token_key, async (err: any, decoded: any) => {
+    if (err) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    try {
+      const student = await Student.findOne({
+        id_number: decoded.user?.id_number,
+      });
+
+      if (student) {
+        req.user = {
+          ...user_model(student),
+          role: 'Student' as const,
+        };
+        next();
+      } else {
+        const admin = await Admin.findOne({
+          id_number: decoded.user?.id_number,
+        });
+        if (admin) {
+          req.user = {
+            ...admin_model(admin),
+            role: 'Admin' as const,
+          };
+          next();
+        } else {
+          res.status(403).json({ message: "Access Denied" });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+};
