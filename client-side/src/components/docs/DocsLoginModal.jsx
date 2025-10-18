@@ -82,7 +82,7 @@ const DocsLoginModal = ({ onClose, onLoginSuccess }) => {
         const data = await login(formData);
 
         if (data) {
-          if (data.role === "Admin" || data.role === "Student") {
+          if (data.role === "Admin") {
             resetAttemptAuthentication();
             showToast("success", data.message);
 
@@ -199,7 +199,7 @@ const DocsLoginModal = ({ onClose, onLoginSuccess }) => {
             <div className="px-6 py-4 border-t transition-colors bg-gray-50 border-gray-200">
               <p className="text-xs text-center text-gray-600">
                 <i className="fas fa-info-circle mr-1"></i>
-                Access is available to PSITS Students and Admin accounts
+                Access is available to PSITS Admin accounts only
               </p>
             </div>
           </>

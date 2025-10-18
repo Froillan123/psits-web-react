@@ -18,7 +18,7 @@ const getUserAccessLevel = (req: any): 'Public' | 'Student' | 'Admin' | 'Both' =
 // Helper function to build access filter based on user role
 const buildAccessFilter = (userRole: string) => {
   if (userRole === 'Admin') {
-    // Admins can see everything
+    // Admins can see everything - no access filter
     return {};
   } else if (userRole === 'Student') {
     // Students can see Public, Student, and Both
@@ -32,7 +32,7 @@ const buildAccessFilter = (userRole: string) => {
 export const getApiEndpoints = async (req: any, res: Response) => {
   try {
     const { method, category, access, page, limit } = req.query;
-    const userRole = req.both?.role || req.user?.role || 'Public';
+    const userRole = req.admin?.role || 'Public';
     
     // Parse pagination parameters
     const currentPage = parseInt(page as string) || 1;
@@ -95,7 +95,7 @@ export const getApiEndpoints = async (req: any, res: Response) => {
 export const getApiEndpointById = async (req: any, res: Response) => {
   try {
     const { endpointId } = req.params;
-    const userRole = req.both?.role || req.user?.role || 'Public';
+    const userRole = req.admin?.role || 'Public';
     
     const endpoint = await ApiEndpoint.findOne({
       endpointId,
@@ -127,7 +127,7 @@ export const getApiEndpointById = async (req: any, res: Response) => {
 export const getFeatures = async (req: any, res: Response) => {
   try {
     const { category, search, page, limit } = req.query;
-    const userRole = req.both?.role || req.user?.role || 'Public';
+    const userRole = req.admin?.role || 'Public';
     
     // Parse pagination parameters
     const currentPage = parseInt(page as string) || 1;
@@ -191,7 +191,7 @@ export const getFeatures = async (req: any, res: Response) => {
 export const getFeatureById = async (req: any, res: Response) => {
   try {
     const { featureId } = req.params;
-    const userRole = req.both?.role || req.user?.role || 'Public';
+    const userRole = req.admin?.role || 'Public';
     
     const feature = await Feature.findOne({
       featureId,
@@ -329,7 +329,7 @@ const generateFeatureId = (title: string): string => {
 // Admin-only endpoints for managing documentation
 export const createApiEndpoint = async (req: any, res: Response) => {
   try {
-    if (req.both?.role !== 'Admin' && req.user?.role !== 'Admin') {
+    if (req.admin?.role !== 'Admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.',
@@ -342,8 +342,8 @@ export const createApiEndpoint = async (req: any, res: Response) => {
     const endpointData = {
       ...req.body,
       endpointId,
-      createdBy: req.both?.id_number || req.user?.id_number,
-      updatedBy: req.both?.id_number || req.user?.id_number,
+      createdBy: req.admin?.id_number,
+      updatedBy: req.admin?.id_number,
     };
 
     const endpoint = new ApiEndpoint(endpointData);
@@ -366,7 +366,7 @@ export const createApiEndpoint = async (req: any, res: Response) => {
 
 export const createFeature = async (req: any, res: Response) => {
   try {
-    if (req.both?.role !== 'Admin' && req.user?.role !== 'Admin') {
+    if (req.admin?.role !== 'Admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.',
@@ -379,8 +379,8 @@ export const createFeature = async (req: any, res: Response) => {
     const featureData = {
       ...req.body,
       featureId,
-      createdBy: req.both?.id_number || req.user?.id_number,
-      updatedBy: req.both?.id_number || req.user?.id_number,
+      createdBy: req.admin?.id_number,
+      updatedBy: req.admin?.id_number,
     };
 
     const feature = new Feature(featureData);
@@ -404,7 +404,7 @@ export const createFeature = async (req: any, res: Response) => {
 // Update API Endpoint
 export const updateApiEndpoint = async (req: any, res: Response) => {
   try {
-    if (req.both?.role !== 'Admin' && req.user?.role !== 'Admin') {
+    if (req.admin?.role !== 'Admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.',
@@ -414,7 +414,7 @@ export const updateApiEndpoint = async (req: any, res: Response) => {
     const { endpointId } = req.params;
     const updateData = {
       ...req.body,
-      updatedBy: req.both?.id_number || req.user?.id_number,
+      updatedBy: req.admin?.id_number,
     };
 
     const endpoint = await ApiEndpoint.findOneAndUpdate(
@@ -448,7 +448,7 @@ export const updateApiEndpoint = async (req: any, res: Response) => {
 // Delete API Endpoint (hard delete - remove from database)
 export const deleteApiEndpoint = async (req: any, res: Response) => {
   try {
-    if (req.both?.role !== 'Admin' && req.user?.role !== 'Admin') {
+    if (req.admin?.role !== 'Admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.',
@@ -486,7 +486,7 @@ export const deleteApiEndpoint = async (req: any, res: Response) => {
 // Update Feature
 export const updateFeature = async (req: any, res: Response) => {
   try {
-    if (req.both?.role !== 'Admin' && req.user?.role !== 'Admin') {
+    if (req.admin?.role !== 'Admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.',
@@ -496,7 +496,7 @@ export const updateFeature = async (req: any, res: Response) => {
     const { featureId } = req.params;
     const updateData = {
       ...req.body,
-      updatedBy: req.both?.id_number || req.user?.id_number,
+      updatedBy: req.admin?.id_number,
     };
 
     const feature = await Feature.findOneAndUpdate(
@@ -530,7 +530,7 @@ export const updateFeature = async (req: any, res: Response) => {
 // Delete Feature (hard delete - remove from database)
 export const deleteFeature = async (req: any, res: Response) => {
   try {
-    if (req.both?.role !== 'Admin' && req.user?.role !== 'Admin') {
+    if (req.admin?.role !== 'Admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.',
@@ -568,7 +568,7 @@ export const deleteFeature = async (req: any, res: Response) => {
 // Toggle Active Status for API Endpoint
 export const toggleEndpointStatus = async (req: any, res: Response) => {
   try {
-    if (req.both?.role !== 'Admin' && req.user?.role !== 'Admin') {
+    if (req.admin?.role !== 'Admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.',
@@ -607,7 +607,7 @@ export const toggleEndpointStatus = async (req: any, res: Response) => {
 // Toggle Active Status for Feature
 export const toggleFeatureStatus = async (req: any, res: Response) => {
   try {
-    if (req.both?.role !== 'Admin' && req.user?.role !== 'Admin') {
+    if (req.admin?.role !== 'Admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.',

@@ -16,7 +16,7 @@ import {
   toggleEndpointStatus,
   toggleFeatureStatus,
 } from "../controllers/documentation.controller";
-import { both_authenticate } from "../middlewares/custom_authenticate_token";
+import { admin_authenticate } from "../middlewares/custom_authenticate_token";
 
 const router = Router();
 
@@ -25,26 +25,26 @@ router.get("/stats", getDocStats);
 router.get("/feature-categories", getFeatureCategories);
 router.get("/api-methods", getApiMethods);
 
-// Protected routes (authentication required for both students and admins)
-router.get("/endpoints", both_authenticate, getApiEndpoints);
-router.get("/endpoints/:endpointId", both_authenticate, getApiEndpointById);
-router.get("/features", both_authenticate, getFeatures);
-router.get("/features/:featureId", both_authenticate, getFeatureById);
+// Protected routes (authentication required for admins only)
+router.get("/endpoints", admin_authenticate, getApiEndpoints);
+router.get("/endpoints/:endpointId", admin_authenticate, getApiEndpointById);
+router.get("/features", admin_authenticate, getFeatures);
+router.get("/features/:featureId", admin_authenticate, getFeatureById);
 
 // Admin-only routes (admin role required)
-router.post("/endpoints", both_authenticate, createApiEndpoint);
-router.post("/features", both_authenticate, createFeature);
+router.post("/endpoints", admin_authenticate, createApiEndpoint);
+router.post("/features", admin_authenticate, createFeature);
 
 // Update routes
-router.put("/endpoints/:endpointId", both_authenticate, updateApiEndpoint);
-router.put("/features/:featureId", both_authenticate, updateFeature);
+router.put("/endpoints/:endpointId", admin_authenticate, updateApiEndpoint);
+router.put("/features/:featureId", admin_authenticate, updateFeature);
 
 // Delete routes (soft delete)
-router.delete("/endpoints/:endpointId", both_authenticate, deleteApiEndpoint);
-router.delete("/features/:featureId", both_authenticate, deleteFeature);
+router.delete("/endpoints/:endpointId", admin_authenticate, deleteApiEndpoint);
+router.delete("/features/:featureId", admin_authenticate, deleteFeature);
 
 // Toggle status routes
-router.patch("/endpoints/:endpointId/toggle", both_authenticate, toggleEndpointStatus);
-router.patch("/features/:featureId/toggle", both_authenticate, toggleFeatureStatus);
+router.patch("/endpoints/:endpointId/toggle", admin_authenticate, toggleEndpointStatus);
+router.patch("/features/:featureId/toggle", admin_authenticate, toggleFeatureStatus);
 
 export default router;

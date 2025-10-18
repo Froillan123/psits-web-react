@@ -44,8 +44,6 @@ import Register from "./pages/authentication/Register";
 import PrivateRouteAdmin from "./authentication/privateRouteAdmin";
 import NotFound from "./components/common/NotFound";
 import Profile from "./pages/admin/Profile";
-
-import PrivateRouteBoth from "./authentication/privateRouteBoth";
 import DocsHome from "./pages/docs/DocsHome";
 import ApiEndpoints from "./pages/docs/ApiEndpoints";
 import Features from "./pages/docs/Features";
@@ -89,10 +87,10 @@ const App = () => {
           <Route path="/admin-register" element={<AdminRegister />} />
         </Route>
         
-        {/* Protected docs routes - requires authentication */}
-        <Route path="/docs" element={<PrivateRouteBoth element={DocsHome} />} />
-        <Route path="/docs/api" element={<PrivateRouteBoth element={ApiEndpoints} />} />
-        <Route path="/docs/features" element={<PrivateRouteBoth element={Features} />} />
+        {/* Protected docs routes - requires admin authentication with login modal */}
+        <Route path="/docs" element={<PrivateRouteAdmin element={DocsHome} />} />
+        <Route path="/docs/api" element={<PrivateRouteAdmin element={ApiEndpoints} />} />
+        <Route path="/docs/features" element={<PrivateRouteAdmin element={Features} />} />
         <Route
           path="/admin/"
           element={<PrivateRouteAdmin element={AdminLayout} />}
